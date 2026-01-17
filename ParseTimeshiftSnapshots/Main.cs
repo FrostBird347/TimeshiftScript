@@ -42,7 +42,8 @@ namespace ParseTimeshiftSnapshots {
 			Regex rawSnapshotRegex = new Regex(@"^([0-9]+\s+>\s+)(20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-[0-9][0-9])(\s+\S+\s+)(.*)$");
 			KeyValuePair<string, DateTime> latestDate = new("NULL", DateTime.MinValue);
 			for (int i = 0; i < rawInput.Length; i++) {
-				if (atMetadata) {
+				//Ensure error messages and return codes outputted at the bottom don't break the parser
+				if (atMetadata || rawInput[i].StartsWith("E: ") || rawInput[i].StartsWith("Ret=")) {
 					if (!metadataEndRegex.IsMatch(rawInput[i])) {
 						Console.Error.WriteLine(rawInput[i]);
 					} else if (metadataEndRegexPart2.IsMatch(rawInput[i + 1])) {
