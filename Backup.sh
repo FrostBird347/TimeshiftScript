@@ -7,7 +7,7 @@ set -euo pipefail
 #Ensure we have access to the snapshots folder before we do anything
 ls ./timeshift/snapshots > /dev/null
 
-echo "Running empty check to clear backups marked for deletion..."
+echo "Running empty check to clear backups marked for deletion along with any incomplete backups..."
 timeshift --check --scripted
 
 echo "Getting snapshot list..."
@@ -21,7 +21,7 @@ if [[ ! -z $SnapshotsToDelete ]]
 then
 	echo "$SnapshotsToDelete" | while IFS= read -r SnapshotId
 	do
-		echo "Marking ${SnapshotId} for deletion on next backup..."
+		echo "Marking ${SnapshotId} for deletion after backup..."
 		touch "./timeshift/snapshots/${SnapshotId}/delete"
 	done
 fi
