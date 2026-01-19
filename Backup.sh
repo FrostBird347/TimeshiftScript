@@ -1,6 +1,5 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-#Currently does nothing due to https://github.com/linuxmint/timeshift/issues/500
 renice -n 15 -p $$
 set -euo pipefail
 
