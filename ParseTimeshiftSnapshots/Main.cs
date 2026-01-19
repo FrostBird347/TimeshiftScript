@@ -92,80 +92,33 @@ namespace ParseTimeshiftSnapshots {
 					KeyValuePair<DateTime, string> lastSnapshot = snapshotDates[i].First();
 					foreach (KeyValuePair<DateTime, string> snapshot in snapshotDates[i]) {
 						if (lastSnapshot.Value != snapshot.Value) {
-
 							switch (i) {
 								//4: <=2 days, don't do anything
 								case 4:
 									break;
 								//3: >2 days, allow 1 a day
 								case 3:
-									if (lastSnapshot.Key.Day == snapshot.Key.Day) {
-										if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT && snapshotActions[snapshot.Value] != SnapshotStatus.COMMENT) {
-											if (snapshotActions[snapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[snapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[snapshot.Value] = SnapshotStatus.REMOVE;
-										} else {
-											if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[lastSnapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[lastSnapshot.Value] = SnapshotStatus.REMOVE;
-										}
-									} else {
-										lastSnapshot = snapshot;
-									}
+									int lastDay = lastSnapshot.Key.Day;
+									int currentDay = snapshot.Key.Day;
+									CompareAndProcessSnapshots(ref lastSnapshot, snapshot, lastDay, currentDay, snapshotActions, snapshotComments);
 									break;
 								//2: >2 weeks, allow 1 a week
 								case 2:
-									int currentWeek = ISOWeek.GetWeekOfYear(snapshot.Key) + (lastSnapshot.Key.Year < snapshot.Key.Year ? ISOWeek.GetWeeksInYear(snapshot.Key.Year - 1) : 0);
 									int lastWeek = ISOWeek.GetWeekOfYear(lastSnapshot.Key);
-									if (currentWeek == lastWeek) {
-										if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT && snapshotActions[snapshot.Value] != SnapshotStatus.COMMENT) {
-											if (snapshotActions[snapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[snapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[snapshot.Value] = SnapshotStatus.REMOVE;
-										} else {
-											if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[lastSnapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[lastSnapshot.Value] = SnapshotStatus.REMOVE;
-										}
-									} else {
-										lastSnapshot = snapshot;
-									}
+									int currentWeek = ISOWeek.GetWeekOfYear(snapshot.Key) + (lastSnapshot.Key.Year < snapshot.Key.Year ? ISOWeek.GetWeeksInYear(snapshot.Key.Year - 1) : 0);
+									CompareAndProcessSnapshots(ref lastSnapshot, snapshot, lastWeek, currentWeek, snapshotActions, snapshotComments);
 									break;
 								//1: >3 months
 								case 1:
-									int currentMonth = snapshot.Key.Month + ((snapshot.Key.Year - 1) * 12);
 									int lastMonth = lastSnapshot.Key.Month + ((lastSnapshot.Key.Year - 1) * 12);
-									if (currentMonth == lastMonth) {
-										if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT && snapshotActions[snapshot.Value] != SnapshotStatus.COMMENT) {
-											if (snapshotActions[snapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[snapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[snapshot.Value] = SnapshotStatus.REMOVE;
-										} else {
-											if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[lastSnapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[lastSnapshot.Value] = SnapshotStatus.REMOVE;
-										}
-									} else {
-										lastSnapshot = snapshot;
-									}
+									int currentMonth = snapshot.Key.Month + ((snapshot.Key.Year - 1) * 12);
+									CompareAndProcessSnapshots(ref lastSnapshot, snapshot, lastMonth, currentMonth, snapshotActions, snapshotComments);
 									break;
 								//0: >2 years
 								case 0:
-									bool currentHalf = snapshot.Key.Month <= 6;
-									bool lastHalf = lastSnapshot.Key.Month <= 6;
-									if (currentHalf == lastHalf) {
-										if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT && snapshotActions[snapshot.Value] != SnapshotStatus.COMMENT) {
-											if (snapshotActions[snapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[snapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[snapshot.Value] = SnapshotStatus.REMOVE;
-										} else {
-											if (snapshotActions[lastSnapshot.Value] == SnapshotStatus.COMMENT)
-												Console.Error.WriteLine($"Snapshot with comment \"{snapshotComments[lastSnapshot.Value]}\" has just been marked for deletion!");
-											snapshotActions[lastSnapshot.Value] = SnapshotStatus.REMOVE;
-										}
-									} else {
-										lastSnapshot = snapshot;
-									}
+									int lastHalf = (lastSnapshot.Key.Month <= 6) ? 0 : 1;
+									int currentHalf = (snapshot.Key.Month <= 6) ? 0 : 1;
+									CompareAndProcessSnapshots(ref lastSnapshot, snapshot, lastHalf, currentHalf, snapshotActions, snapshotComments);
 									break;
 							}
 
@@ -193,6 +146,23 @@ namespace ParseTimeshiftSnapshots {
 			Console.Error.WriteLine($"Processed {snapshotActions.Count} snapshots\n{removeCount} marked for deletion\n{keepCount} saved (of those {commentCount} {((commentCount != 1) ? "have" : "has")} a comment)");
 
 			System.Environment.Exit(0);
+		}
+
+		//Compare the current snapshot with the previous one and process them accordingly
+		static void CompareAndProcessSnapshots(ref KeyValuePair<DateTime, string> last, KeyValuePair<DateTime, string> current, int lastGroup, int currentGroup, Dictionary<string, SnapshotStatus> actions, Dictionary<string, string> comments) {
+			if (lastGroup == currentGroup) {
+				if (actions[last.Value] == SnapshotStatus.COMMENT && actions[current.Value] != SnapshotStatus.COMMENT) {
+					if (actions[current.Value] == SnapshotStatus.COMMENT)
+						Console.Error.WriteLine($"Snapshot with comment \"{comments[current.Value]}\" has just been marked for deletion!");
+					actions[current.Value] = SnapshotStatus.REMOVE;
+				} else {
+					if (actions[last.Value] == SnapshotStatus.COMMENT)
+						Console.Error.WriteLine($"Snapshot with comment \"{comments[last.Value]}\" has just been marked for deletion!");
+					actions[last.Value] = SnapshotStatus.REMOVE;
+				}
+			} else {
+				last = current;
+			}
 		}
 	}
 }
