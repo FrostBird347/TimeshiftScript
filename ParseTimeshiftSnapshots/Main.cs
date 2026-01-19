@@ -116,8 +116,8 @@ namespace ParseTimeshiftSnapshots {
 									break;
 								//0: >2 years
 								case 0:
-									int lastHalf = (lastSnapshot.Key.Month <= 6) ? 0 : 1;
-									int currentHalf = (snapshot.Key.Month <= 6) ? 0 : 1;
+									int lastHalf = ((lastSnapshot.Key.Month <= 6) ? 0 : 1) + (lastSnapshot.Key.Year * 2);
+									int currentHalf = ((snapshot.Key.Month <= 6) ? 0 : 1) + (snapshot.Key.Year * 2);
 									CompareAndProcessSnapshots(ref lastSnapshot, snapshot, lastHalf, currentHalf, snapshotActions, snapshotComments);
 									break;
 							}
