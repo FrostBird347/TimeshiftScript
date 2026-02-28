@@ -6,8 +6,11 @@ set -euo pipefail
 #Ensure we have access to the snapshots folder before we do anything
 ls ./timeshift/snapshots > /dev/null
 
-echo "Running empty check to clear backups marked for deletion along with any incomplete backups..."
-timeshift --check --scripted
+if [[ ! -v 1 || "$1" != "--skip-check" ]]
+then
+	echo "Running empty check to clear backups marked for deletion along with any incomplete backups..."
+	timeshift --check --scripted
+fi
 
 echo "Getting snapshot list..."
 RawSnapshots="$(timeshift --list-snapshots --scripted)"
