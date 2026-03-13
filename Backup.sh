@@ -32,4 +32,4 @@ echo "Creating new backup..."
 timeshift --create --scripted
 
 echo "Backup complete!"
-read -p "Press enter to exit:"
+read -sp "Press enter to exit:"
