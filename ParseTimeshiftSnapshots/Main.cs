@@ -10,7 +10,15 @@ namespace ParseTimeshiftSnapshots {
 			REMOVE = 1
 		}
 
+		public static string ConsoleYellowStart = "\x1b[33m";
+		public static string ConsoleYellowEnd = "\x1b[0m";
+
 		public static void Main(string[] rawArgs) {
+			if (Console.IsErrorRedirected) {
+				ConsoleYellowStart = "";
+				ConsoleYellowEnd = "";
+			}
+
 			//Use the same time throughout the script to lower the chances of things breaking
 			DateTime now = DateTime.Now;
 
@@ -153,11 +161,11 @@ namespace ParseTimeshiftSnapshots {
 			if (lastGroup == currentGroup) {
 				if (actions[last.Value] == SnapshotStatus.COMMENT && actions[current.Value] != SnapshotStatus.COMMENT) {
 					if (actions[current.Value] == SnapshotStatus.COMMENT)
-						Console.Error.WriteLine($"Snapshot with comment \"{comments[current.Value]}\" has just been marked for deletion!");
+						Console.Error.WriteLine($"Snapshot with comment \"{ConsoleYellowStart}{comments[current.Value]}{ConsoleYellowEnd}\" has just been marked for deletion!");
 					actions[current.Value] = SnapshotStatus.REMOVE;
 				} else {
 					if (actions[last.Value] == SnapshotStatus.COMMENT)
-						Console.Error.WriteLine($"Snapshot with comment \"{comments[last.Value]}\" has just been marked for deletion!");
+						Console.Error.WriteLine($"Snapshot with comment \"{ConsoleYellowStart}{comments[last.Value]}{ConsoleYellowEnd}\" has just been marked for deletion!");
 					actions[last.Value] = SnapshotStatus.REMOVE;
 				}
 			} else {
