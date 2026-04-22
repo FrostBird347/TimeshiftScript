@@ -23,10 +23,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore -c Release
     - name: Capture Build Artifacts
       uses: actions/upload-artifact@v7
       with:
         name: Artifacts
         path: |
-          *
+          ParseTimeshiftSnapshots/bin/Release/*/
+          Backup.sh
