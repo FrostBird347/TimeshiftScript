@@ -1,5 +1,5 @@
 #!/bin/bash
-BuildNum="6"
+BuildNum="7"
 cd "$(dirname "$0")"
 if [ "$#" -eq 1 ]
 then
@@ -46,4 +46,7 @@ echo "Creating new backup..."
 timeshift --create --scripted
 
 echo "Backup complete!"
-read -sp "Press enter to exit:"
+if [[ ! -v 1 || "$1" != "--auto-exit" ]]
+then
+	read -sp "Press enter to exit:"
+fi
