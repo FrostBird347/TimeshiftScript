@@ -26,15 +26,17 @@ jobs:
       run: dotnet build --no-restore -c Release
     - name: Organise Build Artifacts
       run: |
-        mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots ParseTimeshiftSnapshots
-        mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots.dll ParseTimeshiftSnapshots.dll
-        mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots.runtimeconfig.json ParseTimeshiftSnapshots.runtimeconfig.json
+        mkdir -p out
+        mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots out/ParseTimeshiftSnapshots
+        mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots.dll out/ParseTimeshiftSnapshots.dll
+        mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots.runtimeconfig.json out/ParseTimeshiftSnapshots.runtimeconfig.json
+        mv Backup.sh out/Backup.sh
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v7
       with:
         name: Artifacts
         path: |
-          ParseTimeshiftSnapshots
-          ParseTimeshiftSnapshots.dll
-          ParseTimeshiftSnapshots.runtimeconfig.json
-          Backup.sh
+          out/ParseTimeshiftSnapshots
+          out/ParseTimeshiftSnapshots.dll
+          out/ParseTimeshiftSnapshots.runtimeconfig.json
+          out/Backup.sh
