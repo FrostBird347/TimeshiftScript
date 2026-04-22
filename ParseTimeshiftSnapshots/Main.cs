@@ -3,6 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace ParseTimeshiftSnapshots {
 	class MainClass {
+		public static uint buildNum = 6;
+		public static string ConsoleYellowStart = "\x1b[33m";
+		public static string ConsoleYellowEnd = "\x1b[0m";
 
 		public enum SnapshotStatus {
 			COMMENT = -1,
@@ -10,13 +13,25 @@ namespace ParseTimeshiftSnapshots {
 			REMOVE = 1
 		}
 
-		public static string ConsoleYellowStart = "\x1b[33m";
-		public static string ConsoleYellowEnd = "\x1b[0m";
-
 		public static void Main(string[] rawArgs) {
 			if (Console.IsErrorRedirected) {
 				ConsoleYellowStart = "";
 				ConsoleYellowEnd = "";
+			}
+
+			if (rawArgs.Length > 0) {
+				if (rawArgs[0] == "-h" || rawArgs[0] == "--help") {
+					Console.Error.WriteLine($"ParseTimeshiftSnapshots (build #{buildNum})");
+					Console.Error.WriteLine("	Parses timeshift's snapshot list and returns a list of snapshots to mark for deletion.");
+					Console.Error.WriteLine("	The newest snapshot within any day/week/month/half-year is kept, with comments taking priority.");
+					Console.Error.WriteLine("		less than 2 days: ∞/day");
+					Console.Error.WriteLine("		3 days to 2 weeks: 1/day");
+					Console.Error.WriteLine("		3 weeks to 3 months: 1/week");
+					Console.Error.WriteLine("		4 months to 2 years: 1/month");
+					Console.Error.WriteLine("		over 3 years: 1/half-year");
+					Console.Error.WriteLine("	USAGE: SnapshotsToDelete=\"$(timeshift --list-snapshots --scripted | ./ParseTimeshiftSnapshots)\"");
+					System.Environment.Exit(0);
+				}
 			}
 
 			//Use the same time throughout the script to lower the chances of things breaking
