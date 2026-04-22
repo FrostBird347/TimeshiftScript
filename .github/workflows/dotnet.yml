@@ -29,5 +29,4 @@ jobs:
       with:
         name: Artifacts
         path: |
-          ParseTimeshiftSnapshots/bin/Release/*/*
-          Backup.sh
+          /
