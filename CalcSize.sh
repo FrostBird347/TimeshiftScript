@@ -1,5 +1,5 @@
 #!/bin/bash
-BuildNum="1"
+BuildNum="2"
 cd "$(dirname "$0")"
 if [ "$#" -eq 1 ]
 then
@@ -19,8 +19,9 @@ renice -n 15 -p $$ >/dev/null
 ls ./timeshift/snapshots > /dev/null
 
 cd ./timeshift/snapshots/
-echo "#Ran at $(date)"
-for snapshot in *
+echo "#Started at $(date)"
+for snapshot in $(ls -X)
 do
 	echo "$snapshot: $(sudo find "$snapshot" -type f -links 1 -printf "%k\n" | awk '{s=s+$1} END {print s}' | numfmt --from-unit=1024 --to=iec --suffix=B)"
 done
+echo "#Ended at $(date)"
