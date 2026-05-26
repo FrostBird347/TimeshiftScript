@@ -31,6 +31,7 @@ jobs:
         mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots.dll out/ParseTimeshiftSnapshots.dll
         mv ParseTimeshiftSnapshots/bin/Release/net10.0/ParseTimeshiftSnapshots.runtimeconfig.json out/ParseTimeshiftSnapshots.runtimeconfig.json
         mv Backup.sh out/Backup.sh
+        mv CalcSize.sh out/CalcSize.sh
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v7
       with:
@@ -40,3 +41,4 @@ jobs:
           out/ParseTimeshiftSnapshots.dll
           out/ParseTimeshiftSnapshots.runtimeconfig.json
           out/Backup.sh
+          out/CalcSize.sh
