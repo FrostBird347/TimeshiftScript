@@ -1,6 +1,12 @@
 #!/bin/bash
-BuildNum="7"
+BuildNum="8"
 cd "$(dirname "$0")"
+
+SnapshotSizes=""
+if [ ! -t 0 ]; then
+	SnapshotSizes="$(cat)"
+fi
+
 if [ "$#" -eq 1 ]
 then
 	if [[ "$1" == "-h" || "$1" == "--help" ]]
@@ -11,6 +17,7 @@ then
 		echo "	It also expects ParseTimeshiftSnapshots to be stored in the same directory, once again I reccomend using symlinks."
 		echo "	This script must also be run as root, needs direct access to the timeshift snapshots folder and can't handle multiple backup disks or btrfs snapshots."
 		echo "	Please run ParseTimeshiftSnapshots with the same arg for details regarding when a backup is outdated."
+		echo "	If the output of CalcSize.sh is piped into this script, minimum storage savings will be displayed while marking any snapshots for deletion. It's recommended you cache the output of that script to a file as it takes a long time to run and to also remove the second last line as only latest snapshot's reported minimum size can decrease with time."
 		exit 0
 	fi
 fi
@@ -38,6 +45,11 @@ then
 	echo "$SnapshotsToDelete" | while IFS= read -r SnapshotId
 	do
 		echo "Marking ${SnapshotId} for deletion after backup..."
+		SnapShotSize="$(echo "$SnapshotSizes" | grep "${SnapshotId}")"
+		if [[ "$SnapShotSize" != "" ]]
+		then
+			echo "	${SnapShotSize}+"
+		fi
 		touch "./timeshift/snapshots/${SnapshotId}/delete"
 	done
 fi
