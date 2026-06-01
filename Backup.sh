@@ -1,10 +1,11 @@
 #!/bin/bash
-BuildNum="8"
+BuildNum="9"
 cd "$(dirname "$0")"
 
 SnapshotSizes=""
 if [ ! -t 0 ]; then
 	SnapshotSizes="$(cat)"
+	exec </dev/tty >/dev/tty
 fi
 
 if [ "$#" -eq 1 ]
@@ -45,7 +46,7 @@ then
 	echo "$SnapshotsToDelete" | while IFS= read -r SnapshotId
 	do
 		echo "Marking ${SnapshotId} for deletion after backup..."
-		SnapShotSize="$(echo "$SnapshotSizes" | grep "${SnapshotId}")"
+		SnapShotSize="$(echo "$SnapshotSizes" | grep "$SnapshotId" || true)"
 		if [[ "$SnapShotSize" != "" ]]
 		then
 			echo "	${SnapShotSize}+"
